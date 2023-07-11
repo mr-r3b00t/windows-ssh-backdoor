@@ -1,0 +1,11 @@
+#SMB Connection based enumeration - runs as current context
+$computers = ([adsisearcher]'(objectCategory=computer)').FindAll()
+$compobjects = $computers | select -ExpandProperty Properties
+$list = $compobjects.dnshostname
+foreach($computer in $list){
+$computer
+$cmd = "net view " + "\\" + $computer + " /all"
+$scriptBlock = [scriptblock]::Create($cmd)
+Invoke-Command -Command $scriptBlock 
+
+}
